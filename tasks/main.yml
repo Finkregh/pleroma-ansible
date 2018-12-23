@@ -1,0 +1,10 @@
+---
+# tasks file for pandjeed.pleroma
+  - name: Install the absolutely needed dependancies for Ansible
+    shell: apt install python-apt python3-apt 
+   
+  - name: Updates everything
+    apt:
+      name: "*"
+      state: latest
+      update_cache: yes
