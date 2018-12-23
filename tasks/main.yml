@@ -1,10 +1,25 @@
 ---
 # tasks file for pandjeed.pleroma
+  - name: Load the appropriate variables
+    include_vars:
+      file: "{{ ansible_distribution }}.yml"
+
   - name: Install the absolutely needed dependancies for Ansible
     shell: apt install python-apt python3-apt 
+   
+  - name: Install Erlang
+    apt:
+      deb: https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb
+      install_recommends: yes
    
   - name: Updates everything
     apt:
       name: "*"
       state: latest
       update_cache: yes
+      
+  - name: Install the required packages
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: essential_packages  
