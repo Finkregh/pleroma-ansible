@@ -35,7 +35,7 @@ galaxy_info:
   # https://galaxy.ansible.com/api/v1/platforms/
   #
   #
-   platforms:
+  platforms:
    - name: Debian
      versions:
      - stretch

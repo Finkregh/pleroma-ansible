@@ -5,7 +5,7 @@
       file: "{{ ansible_distribution }}.yml"
 
   - name: Install the absolutely needed dependancies for Ansible
-    shell: apt install python-apt python3-apt 
+    shell: apt install python-apt python3-apt
    
   - name: Install Erlang
     apt:
@@ -23,3 +23,47 @@
       name: "{{ item }}"
       state: present
     with_items: essential_packages  
+    
+  - name: Creation a Pleroma user
+    user:
+      name: pleroma
+      password: "{{ pleroma_passwd }}"
+      state: present
+      shell: /bin/bash
+      system: no
+      createhome: yes
+      home: /home/pleroma
+  
+  - name: Clone the repository
+    git:
+      repo: https://git.pleroma.social/pleroma/pleroma
+      dest: /home/pleroma
+  
+  - name: Set the correct file ownership and group
+    file:
+      path: /home/pleroma/pleroma
+      owner: pleroma
+      group: pleroma
+      recurse: yes
+      
+  - name: Get the dependancies
+    expect:
+      chdir: /home/pleroma/pleroma
+      command: mix deps.get
+      responses:
+        Hex: yes
+    become: yes
+    become_user: pleroma
+ 
+  - name: Generate the configuration
+    expect:
+      chdir: /home/pleroma/pleroma
+      command: mix pleroma.instance gen
+      responses:
+        rebar3: yes
+    become: yes
+    become_user: pleroma
+      
+   
+   
+  

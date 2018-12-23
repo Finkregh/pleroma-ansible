@@ -9,6 +9,11 @@ Requirements
 
 U don't need anything specific. Just Debian 8 or 9. 
 
+Variables
+---------
+
+pleroma_passwd: 
+
 Example Playbook
 ----------------
 
@@ -20,6 +25,8 @@ Including an example of how to use your role (for instance, with variables passe
         - name: Install Pleroma with Tor
           include_role:
             name: pandjeed.pleroma
+          vars:
+            pleroma_passwd: randombullshit
 
 License
 -------

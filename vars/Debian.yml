@@ -15,3 +15,5 @@
     - erlang-xmerl
     - erlang-tools
     - tor
+    - python3-expect
+    - python-expect
