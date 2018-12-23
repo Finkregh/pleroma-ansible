@@ -5,7 +5,7 @@
       file: "{{ ansible_distribution }}.yml"
 
   - name: Install the absolutely needed dependancies for Ansible
-    shell: apt install python-apt python3-apt
+    shell: apt install python-apt python3-apt -y
    
   - name: Install Erlang
     apt:
@@ -63,7 +63,41 @@
         rebar3: yes
     become: yes
     become_user: pleroma
+  
+  - name: Copy the generated configuration file as a new production file
+    copy:
+      src: /home/pleroma/config/generated_config.exs
+      dest: /home/pleroma/config/prod.secrets.exs
+      owner: pleroma
+      group: pleroma
+      remote_src: yes
+  
+  - name: Create a database based on setup_db.psql
+    postgresql_db:
+      name: pleroma
+      state: restore
+      target: /home/pleroma/pleroma/config/setup_db.psql
+    become: yes
+    become_user: postgres
+  
+  - name: Run the database migration
+    shell: MIX_ENV=prod mix ecto.migrate
+    args:
+      chdir: /home/pleroma/pleroma
+    become: yes
+    become_user: pleroma
+  
+  - name: Enable the Pleroma service
+    systemd:
+      daemon_reload: yes
+      name: pleroma.service
+      enabled: yes
+      state: started
+   
+  - name: Enable Tor
+    systemd:
+      name: tor
+      enabled: yes
+      state: started
       
-   
-   
   

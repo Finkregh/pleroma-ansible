@@ -17,3 +17,5 @@
     - tor
     - python3-expect
     - python-expect
+    - python-psycopg2
+    - python3-psycopg2

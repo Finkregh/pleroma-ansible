@@ -1,0 +1,9 @@
+[Service]
+User=pleroma
+WorkingDirectory=/home/pleroma/pleroma
+Environment="HOME=/home/pleroma"
+Environment="MIX_ENV=prod"
+ExecStart=/usr/local/bin/mix phx.server
+ExecReload=/bin/kill $MAINPID
+KillMode=process
+Restart=on-failure
