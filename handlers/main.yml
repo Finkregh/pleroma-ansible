@@ -1,2 +1,11 @@
 ---
 # handlers file for pandjeed.pleroma
+
+  - name: Get dependancies
+    expect:
+      chdir: /home/pleroma/pleroma
+      command: mix deps.get
+      responses:
+        Hex: yes
+    become: yes
+    become_user: pleroma

@@ -23,6 +23,41 @@
       name: "{{ item }}"
       state: present
     with_items: essential_packages  
+  
+  - name: Add this new hidden service
+    blockinfile:
+      path: /etc/tor/torrc
+      state: present
+      line: | 
+        HiddenServiceDir /var/lib/tor/pleroma/
+        HiddenServicePort 80 127.0.0.1:4000
+   
+  - name: Enable Tor
+    systemd:
+      name: tor
+      enabled: yes
+      state: started
+  
+  - name: Get the new onion address
+    slurp:
+      src: /var/lib/tor/pleroma/hostname
+    register: onion_address
+   
+  - name: Apply the new Nginx configuration file
+    template:
+      src: pleroma_nginx.conf.j2
+      dest: /etc/nginx/sites-available/pleroma.conf
+   
+  - name: Enable this new configuration
+    copy:
+      src: /etc/nginx/sites-available/pleroma.conf
+      dest: /etc/nginx/sites-enabled/pleroma.conf
+      
+  - name: Restart NGINX
+    systemd:
+      name: nginx
+      enabled: yes
+      state: restarted
     
   - name: Creation a Pleroma user
     user:
@@ -45,15 +80,7 @@
       owner: pleroma
       group: pleroma
       recurse: yes
-      
-  - name: Get the dependancies
-    expect:
-      chdir: /home/pleroma/pleroma
-      command: mix deps.get
-      responses:
-        Hex: yes
-    become: yes
-    become_user: pleroma
+    notify: Get dependancies
  
   - name: Generate the configuration
     expect:
@@ -72,6 +99,17 @@
       group: pleroma
       remote_src: yes
   
+  - name: Adapt the configuration file for Tor
+    lineinfile:
+      path: /home/pleroma/config/prod.secrets.exs
+      line: "config :pleroma, :http, proxy_url: {:socks5, :localhost, 9050}"
+    
+  - lineinfile:
+      path: /home/pleroma/config/prod.secrets.exs
+      regexp: "   url: [host: \"{{ onion_address }}\", scheme: \"https\", port: 443],"
+      line: "   url: [host: \"{{ onionaddress }}\", scheme: \"http\", port: 80],"
+    notify: Get dependancies
+  
   - name: Create a database based on setup_db.psql
     postgresql_db:
       name: pleroma
@@ -86,17 +124,11 @@
       chdir: /home/pleroma/pleroma
     become: yes
     become_user: pleroma
-  
+      
   - name: Enable the Pleroma service
     systemd:
       daemon_reload: yes
       name: pleroma.service
-      enabled: yes
-      state: started
-   
-  - name: Enable Tor
-    systemd:
-      name: tor
       enabled: yes
       state: started
       

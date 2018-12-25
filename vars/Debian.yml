@@ -19,3 +19,4 @@
     - python-expect
     - python-psycopg2
     - python3-psycopg2
+    - nginx
