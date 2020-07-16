@@ -1,22 +1,21 @@
 ---
 # vars file for pandjeed.pleroma
 
-  essential_packages: 
-    - git 
+  essential_packages:
+    - git
     - build-essential
-    - openssl 
-    - ssh 
+      #- openssl
+    - ssh
     - sudo
-    - postgresql-9.6 
+    - postgresql-9.6
     - postgresql-contrib-9.6
-    - elixir 
-    - erlang-dev 
+    - elixir
+    - erlang-dev
     - erlang-parsetools
     - erlang-xmerl
     - erlang-tools
-    - tor
     - python3-expect
     - python-expect
     - python-psycopg2
     - python3-psycopg2
-    - nginx
+      #- nginx
